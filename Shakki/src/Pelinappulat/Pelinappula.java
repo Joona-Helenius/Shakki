@@ -1,4 +1,4 @@
-package PeliNappulat;
+package Pelinappulat;
 
 import Shakki.*;
 
