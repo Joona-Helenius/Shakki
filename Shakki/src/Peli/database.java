@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class database {
 
 	static ArrayList<Data> a = new ArrayList<Data>();
-	
+
 	public Connection connect() {
 		String url = "jdbc:sqlite:shakki.db";
 		Connection conn = null;
@@ -38,7 +38,7 @@ public class database {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	public ArrayList<Data> selectAll() {
 		String sql = "SELECT nappulan_tyyppi, KoordinaattiX, KoordinaattiY, syty FROM Nappula";
 		try (Connection conn = this.connect();
@@ -58,14 +58,14 @@ public class database {
 				//System.out.println(rs.getString("nappulan_tyyppi")+ "\t" + rs.getInt("KoordinaattiX") + "\t" + rs.getInt("KoordinaattiY"));
 			}
 			return a;
-			
+
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 		return a;
-				
+
 	}
-	
+
 	/*
 	public static void main(String[] args) {
 		database db = new database();
@@ -80,6 +80,5 @@ public class database {
 		System.out.println(a.get(i).getY());
 		System.out.println(a.get(i).getB());
 		}
-		*/
-	}
+	 */
 }
