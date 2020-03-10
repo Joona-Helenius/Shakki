@@ -5,8 +5,8 @@ public class Sijainti {
 	private int col;
 	
 	public Sijainti(int col, int row) {
-		this.row = row;
 		this.col = col;
+		this.row = row;
 	}
 	public int getRow() {
 		return this.row;

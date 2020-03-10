@@ -9,38 +9,7 @@ public class PeliLauta {
 		shakkilauta = new Pelinappula[8][8];
 	}
 	
-	public void setupGame() {
-		for(int i=0; i<8;i++) {
-			Sotilas s = new Sotilas(1 ,new Sijainti(1,i));
-			shakkilauta[1][i] = s;
-			Sotilas s1 = new Sotilas(0, new Sijainti(6, i));
-			shakkilauta[6][i] = s1;
-		}
-	}
-	
-	public boolean isPieceAt(int row, int col) {
-		return shakkilauta[row][col] != null;
-	}
-	
-	public boolean movePieceTo(Sijainti nappula, Sijainti moveTo) {
-		Pelinappula n= getPieceAt(nappula);
-		if(isPathClear(nappula, moveTo)) {
-			if (isPieceAt(moveTo.getRow(), moveTo.getCol()) && !(n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
-				removePieceAt(moveTo);
-			}
-			if (isPieceAt(moveTo.getRow(), moveTo.getCol()) && n.getOmistaja()==getPieceAt(moveTo).getOmistaja()) {
-				System.out.println("Oma tiellä");
-				return false;
-			}
-			removePieceAt(n.getSijainti());
-			shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
-			n.setSijainti(moveTo);
-			
-			return true;	
-		}
-		System.out.println("Ei onnistunut");
-		return false;
-	}
+	i
 	
 	public void removePieceAt(Sijainti sijainti) {
 		shakkilauta[sijainti.getRow()][sijainti.getCol()] = null;
