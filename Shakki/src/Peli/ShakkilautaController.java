@@ -1,5 +1,7 @@
 package Peli;
 
+import java.util.ArrayList;
+
 import Shakki.PeliLauta;
 import Shakki.Sijainti;
 import javafx.event.EventHandler;
@@ -362,25 +364,28 @@ public class ShakkilautaController {
 	}
 
 	@FXML
-	public void prepareMove(MouseEvent event) {
-		int column = GridPane.getColumnIndex((Node) event.getSource());
-		int row = GridPane.getRowIndex((Node) event.getSource());
-		if(pieceToMove!=null) {
-			int column1 = GridPane.getColumnIndex(pieceToMove);
-			int row1 = GridPane.getRowIndex(pieceToMove);
-			if(pelilauta.movePieceTo(new Sijainti(column1, row1) , new Sijainti(column, row))) {
-				gridPane.getChildren().remove((Node)event.getSource());
-				System.out.println("Piece eaten");
-				move(event);
-			}
-		}
-		if(pieceToMove==null) {
-			System.out.println("Piece selected");
-			pieceToMove=(ImageView) event.getSource();
-			createSquare(column, row);
-			event.consume();
-		}
-	}
+    public void prepareMove(MouseEvent event) {
+        int column = GridPane.getColumnIndex((Node) event.getSource());
+        int row = GridPane.getRowIndex((Node) event.getSource());
+        if(pieceToMove!=null) {
+            int column1 = GridPane.getColumnIndex(pieceToMove);
+            int row1 = GridPane.getRowIndex(pieceToMove);
+            if(pelilauta.movePieceTo(new Sijainti(column1, row1) , new Sijainti(column, row))) {
+                gridPane.getChildren().remove((Node)event.getSource());
+                System.out.println("Piece eaten");
+                gridPane.getChildren().remove(pieceToMove);
+                gridPane.add(pieceToMove, column, row);
+                pieceToMove=null;
+                gridPane.getChildren().remove(pieceSelecter);
+            }
+        }
+        else if(pieceToMove==null) {
+            System.out.println("Piece selected");
+            pieceToMove=(ImageView) event.getSource();
+            createSquare(column, row);
+            event.consume();
+        }
+    }
 
 	public void createSquare(int column, int row) {
 		pieceSelecter=new Rectangle();

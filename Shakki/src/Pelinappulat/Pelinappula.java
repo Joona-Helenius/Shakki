@@ -22,4 +22,7 @@ public class Pelinappula {
 	public boolean isValid(Sijainti s) {
 		return false;
 	}
+	public int isValidSotilas(Sijainti s) {
+		return 0;
+	}
 }
