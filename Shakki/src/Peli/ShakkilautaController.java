@@ -1,7 +1,7 @@
 package Peli;
 
-import java.util.ArrayList;
-
+import Shakki.PeliLauta;
+import Shakki.Sijainti;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -13,6 +13,7 @@ import javafx.scene.shape.Rectangle;
 
 public class ShakkilautaController {
 
+	private PeliLauta pelilauta;
 
 	@FXML
 	private Rectangle D7;
@@ -306,19 +307,54 @@ public class ShakkilautaController {
 	private GridPane gridPane;
 
 	private ImageView pieceToMove;
-	
-	private Rectangle pieceSelecter;
-	
 
+	private Rectangle pieceSelecter;
+
+	public void initialize() {
+		pelilauta= new PeliLauta();
+		pelilauta.setupGame();
+	}
+	
+	/**
+     * Alustava tallennusmetodi
+     */
+    public void saveGame() {
+    database d = new database();
+    ArrayList<ImageView> n = new ArrayList<ImageView>();
+    for (int i=0;i<96;i++) {
+        Node node = gridPane.getChildren().get(i);
+        if(node instanceof ImageView) {
+            n.add((ImageView) node);
+        }
+    }
+    for (int i = 0; i<n.size();i++) {
+        boolean b=gridPane.getChildren().contains(n.get(i));
+        d.insert(n.get(i).getId(), GridPane.getColumnIndex(n.get(i)), GridPane.getRowIndex(n.get(i)), b);
+    }
+    //database d = new database();
+    //String s = "wp1";
+    //int x = GridPane.getRowIndex(wp1);
+    //int y = GridPane.getColumnIndex(wp1);
+    //d.insert(s, x, y, false);
+    }
+	
 	@FXML
 	public void move(MouseEvent event) {
 		if(pieceToMove!=null) {
 			int column = GridPane.getColumnIndex((Node) event.getSource());
 			int row = GridPane.getRowIndex((Node) event.getSource());
-			gridPane.getChildren().remove(pieceToMove);
-			gridPane.add(pieceToMove, column, row);
-			pieceToMove=null;
-			gridPane.getChildren().remove(pieceSelecter);
+			int column1 = GridPane.getColumnIndex(pieceToMove);
+			int row1 = GridPane.getRowIndex(pieceToMove);
+			if(pelilauta.movePieceTo(new Sijainti(column1, row1) , new Sijainti(column, row))) {
+				gridPane.getChildren().remove(pieceToMove);
+				gridPane.add(pieceToMove, column, row);
+				pieceToMove=null;
+				gridPane.getChildren().remove(pieceSelecter);
+			}
+			else {
+				return;
+			}
+
 		}
 		else {
 			System.out.println("No piece chosen!");
@@ -327,22 +363,25 @@ public class ShakkilautaController {
 
 	@FXML
 	public void prepareMove(MouseEvent event) {
-		//saveGame();
+		int column = GridPane.getColumnIndex((Node) event.getSource());
+		int row = GridPane.getRowIndex((Node) event.getSource());
+		if(pieceToMove!=null) {
+			int column1 = GridPane.getColumnIndex(pieceToMove);
+			int row1 = GridPane.getRowIndex(pieceToMove);
+			if(pelilauta.movePieceTo(new Sijainti(column1, row1) , new Sijainti(column, row))) {
+				gridPane.getChildren().remove((Node)event.getSource());
+				System.out.println("Piece eaten");
+				move(event);
+			}
+		}
 		if(pieceToMove==null) {
 			System.out.println("Piece selected");
 			pieceToMove=(ImageView) event.getSource();
-			int row = GridPane.getRowIndex((Node) event.getSource());
-			int column = GridPane.getColumnIndex((Node) event.getSource());
 			createSquare(column, row);
 			event.consume();
 		}
-		else {
-			gridPane.getChildren().remove((Node)event.getSource());
-			System.out.println("Piece eaten");
-			
-			move(event);
-		}
 	}
+
 	public void createSquare(int column, int row) {
 		pieceSelecter=new Rectangle();
 		pieceSelecter.setWidth(63);
@@ -351,40 +390,16 @@ public class ShakkilautaController {
 		pieceSelecter.setOpacity(0.5);
 		pieceSelecter.addEventHandler(MouseEvent.MOUSE_CLICKED,
 				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent arg0) {
-						pieceToMove=null;
-						gridPane.getChildren().remove(pieceSelecter);
-						System.out.println("Piece deselected");
-						arg0.consume();
+			@Override
+			public void handle(MouseEvent arg0) {
+				pieceToMove=null;
+				gridPane.getChildren().remove(pieceSelecter);
+				System.out.println("Piece deselected");
+				arg0.consume();
 
-					}
-			
+			}
+
 		});
 		gridPane.add(pieceSelecter, column, row);
 	}
-	
-	/**
-	 * Alustava tallennusmetodi
-	 */
-	public void saveGame() {
-	database d = new database();
-	ArrayList<ImageView> n = new ArrayList<ImageView>();
-	for (int i=0;i<96;i++) {
-		Node node = gridPane.getChildren().get(i);
-		if(node instanceof ImageView) {
-			n.add((ImageView) node);
-		}
-	}
-	for (int i = 0; i<n.size();i++) {
-		boolean b=gridPane.getChildren().contains(n.get(i));
-		d.insert(n.get(i).getId(), GridPane.getColumnIndex(n.get(i)), GridPane.getRowIndex(n.get(i)), b);
-	}
-	//database d = new database();
-	//String s = "wp1";
-	//int x = GridPane.getRowIndex(wp1);
-	//int y = GridPane.getColumnIndex(wp1);
-	//d.insert(s, x, y, false);
-	}
-
 }

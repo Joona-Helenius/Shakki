@@ -17,7 +17,7 @@ public class Pelinappula {
 		this.sijainti = sijainti;
 	}
 	public int getOmistaja() {
-		return this.omistaja;
+		return omistaja;
 	}
 	public boolean isValid(Sijainti s) {
 		return false;
