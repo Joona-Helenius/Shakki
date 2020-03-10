@@ -4,11 +4,20 @@ import Pelinappulat.*;
 
 public class PeliLauta {
 	private Pelinappula[][] shakkilauta;
+	private int vuoro = 0;
 
 	public PeliLauta() {
 		shakkilauta = new Pelinappula[8][8];
 	}
 
+	public int getVuoro() {
+        return this.vuoro;
+    }
+	
+	public void setVuoro(int vuoro) {
+        this.vuoro = vuoro;
+    }
+	
 	public void setupGame() {
 		for(int i=0; i<8;i++) {
 			Sotilas s = new Sotilas(1 ,new Sijainti(i, 1));
@@ -53,70 +62,95 @@ public class PeliLauta {
 
 	public boolean movePieceTo(Sijainti nappula, Sijainti moveTo) {
 		Pelinappula n= getPieceAt(nappula);
-		if(n instanceof Hevonen) {
-			System.out.println("Olemme hevonen");
-			if(n.isValid(moveTo)) {
+		if(n.getOmistaja() == vuoro) {
+			if(n instanceof Hevonen) {
+				if(n.isValid(moveTo)) {
+					if (isPieceAt(moveTo.getCol(), moveTo.getRow()) && (n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
+						System.out.println("Oma liikkeen päässä");
+						return false;
+					}
+					removePieceAt(moveTo);
+					removePieceAt(nappula);
+					n.setSijainti(moveTo);
+					shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
+					switch (vuoro) {
+					case 0: vuoro = 1;
+					break;
+					case 1: vuoro = 0;
+					break;
+					}
+					return true;
+				}
+			}
+			if(n instanceof Sotilas) {
+				switch(n.isValidSotilas(moveTo)) {
+				case 0: return false;
+
+				case 1: if(isPieceAt(moveTo.getCol(), moveTo.getRow())) {
+					System.out.println("Nappula liikkeen päässä");
+					return false;
+				}
+				if (isPathClear(nappula, moveTo)) {
+					removePieceAt(nappula);
+					n.setSijainti(moveTo);
+					shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
+					switch (vuoro) {
+					case 0: vuoro = 1;
+					break;
+					case 1: vuoro = 0;
+					break;
+					}
+					return true;
+				}
+
+
+				case 2: if (isPieceAt(moveTo.getCol(), moveTo.getRow()) && (n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
+					System.out.println("Oma liikkeen päässä");
+					return false;
+				}
+				if(isPieceAt(moveTo.getCol(), moveTo.getRow()) && !(n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
+					removePieceAt(moveTo);
+					removePieceAt(nappula);
+					n.setSijainti(moveTo);
+					shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
+					switch (vuoro) {
+					case 0: vuoro = 1;
+					break;
+					case 1: vuoro = 0;
+					break;
+					}
+					return true;
+				}
+
+
+				}
+			}
+			if(n.isValid(moveTo))  {
 				if (isPieceAt(moveTo.getCol(), moveTo.getRow()) && (n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
 					System.out.println("Oma liikkeen päässä");
 					return false;
 				}
-				removePieceAt(moveTo);
-				removePieceAt(nappula);
-				n.setSijainti(moveTo);
-				shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
-				return true;
+				if (isPathClear(nappula, moveTo)) {
+					removePieceAt(moveTo);
+					removePieceAt(nappula);
+					n.setSijainti(moveTo);
+					shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
+					switch (vuoro) {
+					case 0: vuoro = 1;
+					break;
+					case 1: vuoro = 0;
+					break;
+					}
+					return true;
+				}
+
 			}
+			System.out.println("Virheellinen liike");
+			return false;	
 		}
-		if(n instanceof Sotilas) {
-			System.out.println("olemme sotilas");
-			switch(n.isValidSotilas(moveTo)) {
-			case 0: return false;
-
-			case 1: if(isPieceAt(moveTo.getCol(), moveTo.getRow())) {
-				System.out.println("Nappula liikkeen päässä");
-				return false;
-			}
-			if (isPathClear(nappula, moveTo)) {
-				removePieceAt(nappula);
-				n.setSijainti(moveTo);
-				shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
-				return true;
-			}
-
-
-			case 2: if (isPieceAt(moveTo.getCol(), moveTo.getRow()) && (n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
-				System.out.println("Oma liikkeen päässä");
-				return false;
-			}
-			if(isPieceAt(moveTo.getCol(), moveTo.getRow()) && !(n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
-				removePieceAt(moveTo);
-				removePieceAt(nappula);
-				n.setSijainti(moveTo);
-				shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
-				return true;
-			}
-
-
-			}
-		}
-		if(n.isValid(moveTo))  {
-			if (isPieceAt(moveTo.getCol(), moveTo.getRow()) && (n.getOmistaja()==getPieceAt(moveTo).getOmistaja())) {
-				System.out.println("Oma liikkeen päässä");
-				return false;
-			}
-			if (isPathClear(nappula, moveTo)) {
-				removePieceAt(moveTo);
-				removePieceAt(nappula);
-				n.setSijainti(moveTo);
-				shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
-				return true;
-			}
-
-		}
-		System.out.println("Virheellinen liike");
-		return false;	
+		System.out.println("Toisen pelaajan vuoro! äläs hätäile!");
+		return false;
 	}
-
 	public void removePieceAt(Sijainti sijainti) {
 		shakkilauta[sijainti.getRow()][sijainti.getCol()] = null;
 	}
@@ -125,88 +159,83 @@ public class PeliLauta {
 		return shakkilauta[sijainti.getRow()][sijainti.getCol()];
 	}
 
-	public void setPieceTo(Pelinappula nappula) {
-		shakkilauta[nappula.getSijainti().getRow()][nappula.getSijainti().getCol()] = nappula;
-	}
+	public void setPieceTo(Sijainti nappula, Sijainti moveTo) {
+        Pelinappula n= getPieceAt(nappula);
+        n.setSijainti(moveTo);
+        removePieceAt(nappula);
+        shakkilauta[moveTo.getRow()][moveTo.getCol()] = n;
+    }
 
 	public Pelinappula[][] getPelilauta() {
 		return this.shakkilauta;
 	}
 	public boolean isPathClear(Sijainti alku, Sijainti loppu) {
-		if (alku.getRow() == loppu.getRow()) {
-			if (alku.getCol() -1 > loppu.getCol()) {
-				for (int i = alku.getCol() -1; i > loppu.getCol(); i--) {
-					if (isPieceAt(alku.getRow(), i)) {
-						System.out.println("LoS virhe");
-						return false;
-					}
-				}
-			}
-			if (alku.getCol() +1 < loppu.getCol()) {
-				for (int i = alku.getCol() +1; i < loppu.getCol(); i++) {
-					if (isPieceAt(alku.getRow(), i)) {
-						System.out.println("LoS virhe");
-						return false;
-					}
-				}
-			}
-			return true;
-		}
 		if (alku.getCol() == loppu.getCol()) {
 			if (alku.getRow() -1 > loppu.getRow()) {
 				for (int i = alku.getRow() -1; i > loppu.getRow(); i--) {
-					if (isPieceAt(i, alku.getCol())) {
-						System.out.println("LoS virhe");
+					if (isPieceAt(alku.getCol(), i)) {
 						return false;
 					}
 				}
 			}
 			if (alku.getRow() +1 < loppu.getRow()) {
 				for (int i = alku.getRow() +1; i < loppu.getRow(); i++) {
-					if (isPieceAt(i, alku.getCol())) {
-						System.out.println("LoS virhe");
+					if (isPieceAt(alku.getCol(), i)) {
 						return false;
 					}
 				}
 			}
 			return true;
 		}
-		if (Math.abs(alku.getCol() - loppu.getCol()) == Math.abs(alku.getRow() - loppu.getRow())) {
-			if (alku.getRow() +1 < loppu.getRow() && alku.getCol() +1 < loppu.getCol()) {
+		if (alku.getRow() == loppu.getRow()) {
+			if (alku.getCol() -1 > loppu.getCol()) {
+				for (int i = alku.getCol() -1; i > loppu.getCol(); i--) {
+					if (isPieceAt(i, alku.getRow())) {
+						return false;
+					}
+				}
+			}
+			if (alku.getCol() +1 < loppu.getCol()) {
+				for (int i = alku.getCol() +1; i < loppu.getCol(); i++) {
+					if (isPieceAt(i, alku.getRow())) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		if (Math.abs(alku.getRow() - loppu.getRow()) == Math.abs(alku.getCol() - loppu.getCol())) {
+			if (alku.getCol() +1 < loppu.getCol() && alku.getRow() +1 < loppu.getRow()) {
 				int counter = 1;
-				for (int i = alku.getRow() +1; i < loppu.getRow(); i++) {
-					if (isPieceAt(alku.getRow()+counter, alku.getCol()+counter)) {
-						System.out.println("LoS virhe");
+				for (int i = alku.getCol() +1; i < loppu.getCol(); i++) {
+					if (isPieceAt(alku.getCol()+counter, alku.getRow()+counter)) {
 						return false;
 					}
 					counter++;
 				}
 			}
-			if (alku.getRow() -1 > loppu.getRow() && alku.getCol() +1 < loppu.getCol()) {
+			if (alku.getCol() -1 > loppu.getCol() && alku.getRow() +1 < loppu.getRow()) {
 				int counter = 1;
-				for (int i = alku.getRow() -1; i > loppu.getRow(); i--) {
-					if (isPieceAt(alku.getRow()-counter, alku.getCol()+counter)) {
-						System.out.println("LoS virhe");
+				for (int i = alku.getCol() -1; i > loppu.getCol(); i--) {
+					if (isPieceAt(alku.getCol()-counter, alku.getRow()+counter)) {
 						return false;
 					}
 					counter++;
 				}
 			}
-			if (alku.getRow() -1 > loppu.getRow() && alku.getCol() -1 > loppu.getCol()) {
+			if (alku.getCol() -1 > loppu.getCol() && alku.getRow() -1 > loppu.getRow()) {
 				int counter = 1;
-				for (int i = alku.getRow() -1 ; i > loppu.getRow(); i--) {
-					if (isPieceAt(alku.getRow()-counter, alku.getCol()-counter)) {
-						System.out.println("LoS virhe");
+				for (int i = alku.getCol() -1 ; i > loppu.getCol(); i--) {
+					if (isPieceAt(alku.getCol()-counter, alku.getRow()-counter)) {
 						return false;
 					}
 					counter++;
 				}
 			}
-			if (alku.getRow() +1 < loppu.getRow() && alku.getCol() -1 > loppu.getCol()) {
+			if (alku.getCol() +1 < loppu.getCol() && alku.getRow() -1 > loppu.getRow()) {
 				int counter = 1;
-				for (int i = alku.getRow() +1 ; i < loppu.getRow(); i++) {
-					if (isPieceAt(alku.getRow()+counter, alku.getCol()-counter)) {
-						System.out.println("LoS virhe");
+				for (int i = alku.getCol() +1 ; i < loppu.getCol(); i++) {
+					if (isPieceAt(alku.getCol()+counter, alku.getRow()-counter)) {
 						return false;
 					}
 					counter++;
@@ -214,7 +243,6 @@ public class PeliLauta {
 			}
 			return true;
 		}
-		System.out.println("LoS virhe");
 		return false;
 	}
 }

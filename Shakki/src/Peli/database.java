@@ -24,61 +24,64 @@ public class database {
 		return conn;
 	}
 
-	public void insert(String nappulan_tyyppi, int KoordinaattiX, int KoordinaattiY, boolean syty ) {
-		String sql = "INSERT INTO Nappula(nappulan_tyyppi,KoordinaattiX,KoordinaattiY, syty) VALUES(?,?,?,?)";
+	public void insert(int id, String nappulan_tyyppi, int KoordinaattiX, int KoordinaattiY, boolean syöty ) {
+        String sql = "INSERT INTO Nappula(id, nappulan_tyyppi,KoordinaattiX,KoordinaattiY, syöty) VALUES(?,?,?,?,?)";
+        try (Connection conn = this.connect();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.setString(2, nappulan_tyyppi);
+            ps.setInt(3, KoordinaattiX);
+            ps.setInt(4,  KoordinaattiY);
+            ps.setBoolean(5, syöty);
+            ps.executeUpdate();
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+	
+	public ArrayList<Data> loadAll() {
+        String sql = "SELECT nappulan_tyyppi, KoordinaattiX, KoordinaattiY, syöty FROM Nappula";
+        try (Connection conn = this.connect();
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)){
+            while (rs.next()) {
+                Data d = new Data(rs.getString("nappulan_tyyppi"), rs.getInt("KoordinaattiX"), rs.getInt("KoordinaattiY"), rs.getBoolean("syöty"));
+                a.add(d);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return a;
+
+    }
+
+	public int lastRow() {
+		int r = 0;
+		String sql = "SELECT id FROM Nappula ORDER BY id DESC LIMIT 1";
 		try (Connection conn = this.connect();
-				PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, nappulan_tyyppi);
-			ps.setInt(2, KoordinaattiX);
-			ps.setInt(3,  KoordinaattiY);
-			ps.setBoolean(4, syty);
-			ps.executeUpdate();
+				Statement st = conn.createStatement();
+				ResultSet rs = st.executeQuery(sql)){
+			//while(rs.first()) {
+			r = rs.getInt("id");
+			//}
+
+		}
+		catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return r;
+	}
+	public void delete(int id) {
+		String sql = "DELETE FROM Nappula WHERE id = ?";
+
+		try (Connection conn = this.connect();
+				PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setInt(1, id);
+			pstmt.executeUpdate();
 			conn.close();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
-
-	public ArrayList<Data> selectAll() {
-		String sql = "SELECT nappulan_tyyppi, KoordinaattiX, KoordinaattiY, syty FROM Nappula";
-		try (Connection conn = this.connect();
-				Statement st = conn.createStatement();
-				ResultSet rs = st.executeQuery(sql)){
-			while (rs.next()) {
-				Data d = new Data(rs.getString("nappulan_tyyppi"), rs.getInt("KoordinaattiX"), rs.getInt("KoordinaattiY"), rs.getBoolean("syty"));
-				a.add(d);
-				//rs.deleteRow();
-				//String l = rs.getString("nappulan_tyyppi");
-				//int x = rs.getInt("KoordinaattiX");
-				//int y = rs.getInt("KoordinaattiY");
-				//boolean b = rs.getBoolean("syty");
-				//System.out.println(l);
-				//System.out.println(x);
-				//System.out.println(y);
-				//System.out.println(rs.getString("nappulan_tyyppi")+ "\t" + rs.getInt("KoordinaattiX") + "\t" + rs.getInt("KoordinaattiY"));
-			}
-			return a;
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return a;
-
-	}
-
-	/*
-	public static void main(String[] args) {
-		database db = new database();
-		//db.insert("Torni", 2, 3, true); 
-		//db.insert("Sotilas",4,5);
-		//db.insert("Lhetti",6,2);
-		//db.insert
-		db.selectAll();
-		for (int i = 0; i<32; i++) {
-		System.out.println(a.get(i).getTyyppi());
-		System.out.println(a.get(i).getX());
-		System.out.println(a.get(i).getY());
-		System.out.println(a.get(i).getB());
-		}
-	 */
 }
