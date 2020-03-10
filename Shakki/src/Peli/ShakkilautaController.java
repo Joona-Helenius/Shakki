@@ -4,9 +4,12 @@ import java.util.ArrayList;
 
 import Shakki.PeliLauta;
 import Shakki.Sijainti;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -308,38 +311,85 @@ public class ShakkilautaController {
 	@FXML
 	private GridPane gridPane;
 
+	@FXML
+	private Button saveButton;
+
+	@FXML
+	private Button loadButton;
+
+	private database d;
+
 	private ImageView pieceToMove;
 
 	private Rectangle pieceSelecter;
 
+	private ArrayList<ImageView> nodes;
+
+	/**
+	 * GUI:sta huolehtivan controllerin initialize-metodi. Huolehtii, että kaikki pelin pyörittämiseen tarvittavat
+	 * asiat tapahtuvat.
+	 */
 	public void initialize() {
 		pelilauta= new PeliLauta();
+		d= new database();
 		pelilauta.setupGame();
+		nodes = new ArrayList<ImageView>();
+		for (int i=0;i<gridPane.getChildren().size();i++) {
+			Node node = gridPane.getChildren().get(i);
+			if(node instanceof ImageView) {
+				nodes.add((ImageView) node);
+			}
+		}
 	}
-	
+
+	@FXML
+	void handleLoad(ActionEvent event) {
+		ArrayList<Data> loadData = d.loadAll();
+		ArrayList<String> names= new ArrayList<String>();
+		for(int i=0; i<loadData.size(); i++) {
+			String s= loadData.get(i).getTyyppi();
+			names.add(s);
+			for(int b=0; b<nodes.size();b++) {
+				String nodeName= nodes.get(b).getId();
+				if(s.equals(nodeName)) {
+					int column = loadData.get(i).getX();
+					int row = loadData.get(i).getY();
+					int columnOrig = GridPane.getColumnIndex(nodes.get(b));
+					int rowOrig = GridPane.getRowIndex(nodes.get(b));
+					gridPane.getChildren().remove(nodes.get(b));
+					gridPane.add(nodes.get(b), column, row);
+					pelilauta.setPieceTo(new Sijainti(columnOrig, rowOrig), new Sijainti(column, row));
+				}
+			}
+		}
+		for(int i=0; i<nodes.size();i++) {
+			if(!(names.contains(nodes.get(i).getId()))){
+				int column = GridPane.getColumnIndex(nodes.get(i));
+				int row = GridPane.getRowIndex(nodes.get(i));
+				gridPane.getChildren().remove(nodes.get(i));
+				pelilauta.removePieceAt(new Sijainti(column, row));
+				nodes.remove(nodes.get(i));
+			}
+		}
+	}
+
+	@FXML
+	void handleSave(ActionEvent event) {
+		for (int i = 0; i<d.lastRow()+1; i++) {
+			d.delete(i);
+		}
+		for (int i = 0; i<nodes.size();i++) {
+			boolean b=gridPane.getChildren().contains(nodes.get(i));
+			d.insert(i, nodes.get(i).getId(), GridPane.getColumnIndex(nodes.get(i)), GridPane.getRowIndex(nodes.get(i)), b);
+		}
+		Platform.exit();
+	}
+
 	/**
-     * Alustava tallennusmetodi
-     */
-    public void saveGame() {
-    database d = new database();
-    ArrayList<ImageView> n = new ArrayList<ImageView>();
-    for (int i=0;i<96;i++) {
-        Node node = gridPane.getChildren().get(i);
-        if(node instanceof ImageView) {
-            n.add((ImageView) node);
-        }
-    }
-    for (int i = 0; i<n.size();i++) {
-        boolean b=gridPane.getChildren().contains(n.get(i));
-        d.insert(n.get(i).getId(), GridPane.getColumnIndex(n.get(i)), GridPane.getRowIndex(n.get(i)), b);
-    }
-    //database d = new database();
-    //String s = "wp1";
-    //int x = GridPane.getRowIndex(wp1);
-    //int y = GridPane.getColumnIndex(wp1);
-    //d.insert(s, x, y, false);
-    }
-	
+	 * Move-metodi huolehtii nappulan liikuttamisesta GUI elementissä jos nappula liikutetaan tyhjään ruutuun.
+	 * Kutsuu allaolevan PeliLauta-luokan metodeja varmistaakseen liikkeiden laillisuuden.
+	 * @param event
+	 */
 	@FXML
 	public void move(MouseEvent event) {
 		if(pieceToMove!=null) {
@@ -363,30 +413,40 @@ public class ShakkilautaController {
 		}
 	}
 
+	/**
+	 * PrepareMove-metodi valitsee GUI elementin liikutettavaksi, jos liikutettavaa elementtiä ei ole valittu.
+	 * Muussa tapauksessa se huolehtii nappuloita syövistä liikkeistä samalla tavalla kuin move-metodi.
+	 * @param event
+	 */
 	@FXML
-    public void prepareMove(MouseEvent event) {
-        int column = GridPane.getColumnIndex((Node) event.getSource());
-        int row = GridPane.getRowIndex((Node) event.getSource());
-        if(pieceToMove!=null) {
-            int column1 = GridPane.getColumnIndex(pieceToMove);
-            int row1 = GridPane.getRowIndex(pieceToMove);
-            if(pelilauta.movePieceTo(new Sijainti(column1, row1) , new Sijainti(column, row))) {
-                gridPane.getChildren().remove((Node)event.getSource());
-                System.out.println("Piece eaten");
-                gridPane.getChildren().remove(pieceToMove);
-                gridPane.add(pieceToMove, column, row);
-                pieceToMove=null;
-                gridPane.getChildren().remove(pieceSelecter);
-            }
-        }
-        else if(pieceToMove==null) {
-            System.out.println("Piece selected");
-            pieceToMove=(ImageView) event.getSource();
-            createSquare(column, row);
-            event.consume();
-        }
-    }
-
+	public void prepareMove(MouseEvent event) {
+		int column = GridPane.getColumnIndex((Node) event.getSource());
+		int row = GridPane.getRowIndex((Node) event.getSource());
+		if(pieceToMove!=null) {
+			int column1 = GridPane.getColumnIndex(pieceToMove);
+			int row1 = GridPane.getRowIndex(pieceToMove);
+			if(pelilauta.movePieceTo(new Sijainti(column1, row1) , new Sijainti(column, row))) {
+				gridPane.getChildren().remove((Node)event.getSource());
+				nodes.remove((Node)event.getSource());
+				System.out.println("Piece eaten");
+				gridPane.getChildren().remove(pieceToMove);
+				gridPane.add(pieceToMove, column, row);
+				pieceToMove=null;
+				gridPane.getChildren().remove(pieceSelecter);
+			}
+		}
+		else if(pieceToMove==null) {
+			System.out.println("Piece selected");
+			pieceToMove=(ImageView) event.getSource();
+			createSquare(column, row);
+			event.consume();
+		}
+	}
+	/**
+	 * Luo nappulanvalitsimen gridPane koordinaatteihin (column,row).
+	 * @param column
+	 * @param row
+	 */
 	public void createSquare(int column, int row) {
 		pieceSelecter=new Rectangle();
 		pieceSelecter.setWidth(63);
