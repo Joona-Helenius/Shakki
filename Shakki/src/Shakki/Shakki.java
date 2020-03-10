@@ -12,8 +12,8 @@ public class Shakki {
 	
 	public void setBoard() {
 		for (int i = 0; i < 8; i++) {
-			shakkilauta.setPieceTo(new Sotilas(1, new Sijainti(1, i)));
-			shakkilauta.setPieceTo(new Sotilas(2, new Sijainti(6, i)));
+			shakkilauta.setPieceTo(new Sotilas(1, new Sijainti(i, 1)));
+			shakkilauta.setPieceTo(new Sotilas(2, new Sijainti(i, 6)));
 		}
 	}
 }

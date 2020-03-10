@@ -1,5 +1,7 @@
 package Peli;
 
+import java.util.ArrayList;
+
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -306,6 +308,7 @@ public class ShakkilautaController {
 	private ImageView pieceToMove;
 	
 	private Rectangle pieceSelecter;
+	
 
 	@FXML
 	public void move(MouseEvent event) {
@@ -324,6 +327,7 @@ public class ShakkilautaController {
 
 	@FXML
 	public void prepareMove(MouseEvent event) {
+		//saveGame();
 		if(pieceToMove==null) {
 			System.out.println("Piece selected");
 			pieceToMove=(ImageView) event.getSource();
@@ -335,6 +339,7 @@ public class ShakkilautaController {
 		else {
 			gridPane.getChildren().remove((Node)event.getSource());
 			System.out.println("Piece eaten");
+			
 			move(event);
 		}
 	}
@@ -357,6 +362,29 @@ public class ShakkilautaController {
 			
 		});
 		gridPane.add(pieceSelecter, column, row);
+	}
+	
+	/**
+	 * Alustava tallennusmetodi
+	 */
+	public void saveGame() {
+	database d = new database();
+	ArrayList<ImageView> n = new ArrayList<ImageView>();
+	for (int i=0;i<96;i++) {
+		Node node = gridPane.getChildren().get(i);
+		if(node instanceof ImageView) {
+			n.add((ImageView) node);
+		}
+	}
+	for (int i = 0; i<n.size();i++) {
+		boolean b=gridPane.getChildren().contains(n.get(i));
+		d.insert(n.get(i).getId(), GridPane.getColumnIndex(n.get(i)), GridPane.getRowIndex(n.get(i)), b);
+	}
+	//database d = new database();
+	//String s = "wp1";
+	//int x = GridPane.getRowIndex(wp1);
+	//int y = GridPane.getColumnIndex(wp1);
+	//d.insert(s, x, y, false);
 	}
 
 }

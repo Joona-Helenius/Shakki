@@ -4,7 +4,7 @@ public class Sijainti {
 	private int row;
 	private int col;
 	
-	public Sijainti(int row, int col) {
+	public Sijainti(int col, int row) {
 		this.row = row;
 		this.col = col;
 	}
