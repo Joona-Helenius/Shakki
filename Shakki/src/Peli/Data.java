@@ -1,21 +1,19 @@
 package Peli;
 
+/**
+ * Tietokannan apuluokka, jolla dataa tallennetaan tietokantaan. Attribuuti tyyppi on nappulan tyyppi, x on x-koordinaatti ja y on y-koordinaatti
+ */
+
 public class Data {
-	
-	/**
-	 * Tietokannan apuluokka
-	 */
-	
+		
 	public String tyyppi;
 	public int x;
 	public int y;
-	public boolean b;
 	
-	public Data(String tyyppi,int x,int y,boolean b) {
+	public Data(String tyyppi,int x,int y) {
 		this.tyyppi = tyyppi;
 		this.x = x;
 		this.y = y;
-		this.b = b;
 	}
 	
 	public String getTyyppi() {
@@ -30,7 +28,4 @@ public class Data {
 		return this.y;
 	}
 	
-	public boolean getB() {
-		return this.b;
-	}
 }

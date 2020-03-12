@@ -1,5 +1,9 @@
 package Shakki;
 
+/**
+ * Seuraa nappuloiden sijaintia pelilaudalla.
+ */
+
 public class Sijainti {
 	private int row;
 	private int col;

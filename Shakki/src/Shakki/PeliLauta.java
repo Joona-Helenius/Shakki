@@ -1,7 +1,10 @@
 package Shakki;
 
 import Pelinappulat.*;
-
+/**
+ * Pelilauta luokka luo pelattavan pelilaudan ja sen pelinappulat, jossa pelin logiikka toteutetaan.
+ *
+ */
 public class PeliLauta {
 	private Pelinappula[][] shakkilauta;
 	private int vuoro = 0;
@@ -17,6 +20,10 @@ public class PeliLauta {
 	public void setVuoro(int vuoro) {
         this.vuoro = vuoro;
     }
+	
+	/**
+     * Luo peliä varten tarvittavat nappulat, ja asettaa ne oikeille paikoille shakkilaudalle.
+     */
 	
 	public void setupGame() {
 		for(int i=0; i<8;i++) {
@@ -55,11 +62,26 @@ public class PeliLauta {
 		Kuningas ku1 = new Kuningas(0, new Sijainti(4, 7));
 		shakkilauta[7][4] = ku1;
 	}
-
+	
+	/**
+     * Katsoo onko sijainnissa nappula, ja palauttaa true jos sijainnissa on nappula, false jos ei.
+     * @param col
+     * @param row
+     * @return 
+     */
+	
 	public boolean isPieceAt(int col, int row) {
 		return shakkilauta[row][col] != null;
 	}
-
+	
+	/**
+     * Yrittää liikuttaa nappulan toiseen sijaintiin. Käyttää nappulan tyypin isValid metodia tietääkseen onko liike sallittu, ja 
+     * isPathClear metodia katsoakseen onko välissä nappuloita. Metodi hoitaa myös nappuloiden syömisen, ja jos liikettä ei voida tehdä, kertoo miksi.
+     * @param nappula
+     * @param moveTo
+     * @return true jos liike voidaan tehdä, false jos ei.
+     */
+	
 	public boolean movePieceTo(Sijainti nappula, Sijainti moveTo) {
 		Pelinappula n= getPieceAt(nappula);
 		if(n.getOmistaja() == vuoro) {
@@ -151,10 +173,16 @@ public class PeliLauta {
 		System.out.println("Toisen pelaajan vuoro! äläs hätäile!");
 		return false;
 	}
+	
+	/**
+     * Poistaa nappulan sijainnista.
+     * @param sijainti
+     */
+	
 	public void removePieceAt(Sijainti sijainti) {
 		shakkilauta[sijainti.getRow()][sijainti.getCol()] = null;
 	}
-
+	
 	public Pelinappula getPieceAt(Sijainti sijainti) {
 		return shakkilauta[sijainti.getRow()][sijainti.getCol()];
 	}
@@ -169,6 +197,15 @@ public class PeliLauta {
 	public Pelinappula[][] getPelilauta() {
 		return this.shakkilauta;
 	}
+	
+	/**
+     * Katsoo onko alku- ja loppusijainnin välissä nappuloita. Palauttaa true jos loppusijainti on linjassa alkusijainnin kanssa joko vertikaalisesti, 
+     * horisontaalisesti tai diagonaalisesti, ja sijaintien välissä ei ole nappuloita. Muissa tilanteissa palauttaa false.
+     * @param alku
+     * @param loppu
+     * @return
+     */
+	
 	public boolean isPathClear(Sijainti alku, Sijainti loppu) {
 		if (alku.getCol() == loppu.getCol()) {
 			if (alku.getRow() -1 > loppu.getRow()) {

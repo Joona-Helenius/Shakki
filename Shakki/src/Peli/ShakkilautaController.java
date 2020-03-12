@@ -341,7 +341,10 @@ public class ShakkilautaController {
 			}
 		}
 	}
-
+	/**
+	 * handleLoad-metodi tapahtuu, kun Load Game nappia painetaan. Lataa pelin tilan tietokannasta.
+	 * @param event
+	 */
 	@FXML
 	void handleLoad(ActionEvent event) {
 		ArrayList<Data> loadData = d.loadAll();
@@ -371,19 +374,27 @@ public class ShakkilautaController {
 				nodes.remove(nodes.get(i));
 			}
 		}
+		pelilauta.setVuoro(d.turn());
 	}
-
+	/**
+	 * handleSave-metodi tapahtuu, kun Save Game nappia painetaan. Tallentaa pelin tilan tietokantaan.
+	 * @param event
+	 */
 	@FXML
 	void handleSave(ActionEvent event) {
-		for (int i = 0; i<d.lastRow()+1; i++) {
-			d.delete(i);
-		}
-		for (int i = 0; i<nodes.size();i++) {
-			boolean b=gridPane.getChildren().contains(nodes.get(i));
-			d.insert(i, nodes.get(i).getId(), GridPane.getColumnIndex(nodes.get(i)), GridPane.getRowIndex(nodes.get(i)), b);
-		}
-		Platform.exit();
-	}
+        d = new database();
+        for (int i = 0; i<d.lastRow()+1; i++) {
+            d.delete(i);
+        }
+        d.deleteOther(1);
+        for (int i = 0; i<nodes.size();i++) {
+            //boolean b=gridPane.getChildren().contains(nodes.get(i));
+            d.insert(i, nodes.get(i).getId(), GridPane.getColumnIndex(nodes.get(i)), GridPane.getRowIndex(nodes.get(i)));
+        }
+        d.insertTurn(pelilauta.getVuoro());
+        Platform.exit();
+
+    }
 
 	/**
 	 * Move-metodi huolehtii nappulan liikuttamisesta GUI elementissä jos nappula liikutetaan tyhjään ruutuun.

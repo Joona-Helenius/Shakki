@@ -6,6 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * GUI:n pyörittämiseen tarvittava MainApp luokka, joka käyttää ShakkilautaControlleria.
+ */
 public class MainApp extends Application {
 
 	@Override
